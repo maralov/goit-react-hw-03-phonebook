@@ -8,16 +8,33 @@ import Filter from 'components/Filter';
 
 import { Container } from './App.styled';
 
+import LOCAL_STORAGE_CONTACTS from 'constants';
+
 export default class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
   };
+
+  componentDidMount() {
+    const savedContacts = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_CONTACTS),
+    );
+
+    savedContacts && this.setState({ contacts: savedContacts });
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (this.state.contacts !== prevState.contacts) {
+      localStorage.setItem(
+        LOCAL_STORAGE_CONTACTS,
+        JSON.stringify(this.state.contacts),
+      );
+    }
+    console.log(prevState.contacts);
+    console.log(this.state.contacts);
+  }
+
   handleSubmit = (name, number) => {
     const id = shortid.generate();
 
@@ -52,14 +69,6 @@ export default class App extends Component {
   deleteContact = contactId => {
     this.setState(prevState => ({
       contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
-
-  resetForm = () => {
-    this.setState(prevState => ({
-      ...prevState,
-      number: '',
-      name: '',
     }));
   };
 
